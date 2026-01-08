@@ -1,12 +1,12 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
 
 interface SignUpDialogProps {
   open: boolean
@@ -19,26 +19,50 @@ export function SignUpDialog({ open, onOpenChange }: SignUpDialogProps) {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setSuccessMessage("")
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.")
       return
     }
 
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.")
+      return
+    }
+
     setLoading(true)
 
     try {
-      // Add your sign-up API call here
-      console.log("Sign-up attempt:", { email, password })
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      onOpenChange(false)
+      const supabase = createClient()
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/protected`,
+        },
+      })
+
+      if (authError) {
+        setError(authError.message || "Sign-up failed. Please try again.")
+        return
+      }
+
+      setSuccessMessage("Sign-up successful! Please check your email to confirm your account.")
+      setEmail("")
+      setPassword("")
+      setConfirmPassword("")
+      setTimeout(() => {
+        onOpenChange(false)
+        setSuccessMessage("")
+      }, 3000)
     } catch (err) {
-      setError("Sign-up failed. Please try again.")
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -97,6 +121,7 @@ export function SignUpDialog({ open, onOpenChange }: SignUpDialogProps) {
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
+          {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
           <Button
             type="submit"
             disabled={loading}

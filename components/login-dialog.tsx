@@ -1,12 +1,13 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
 
 interface LoginDialogProps {
   open: boolean
@@ -18,6 +19,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,13 +27,21 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     setLoading(true)
 
     try {
-      // Add your login API call here
-      console.log("Login attempt:", { email, password })
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const supabase = createClient()
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (authError) {
+        setError(authError.message || "Login failed. Please try again.")
+        return
+      }
+
       onOpenChange(false)
+      router.push("/protected")
     } catch (err) {
-      setError("Login failed. Please try again.")
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -43,17 +53,17 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         <DialogHeader>
           <DialogTitle className="text-white">Log In</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Enter your email or username and password to access your account.
+            Enter your email and password to access your account.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-gray-300">
-              Email or Username
+              Email
             </Label>
             <Input
               id="email"
-              type="text"
+              type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
