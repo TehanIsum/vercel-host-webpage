@@ -43,11 +43,11 @@ export default function HomePage() {
               {/* Left content */}
               <div className="flex-1 p-8 relative z-10 flex flex-col justify-center">
                 <h1 className="text-4xl md:text-5xl font-bold text-white bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text">
-                  Results and Costs Reduced by AI
+                  AI Products with Tehan
                 </h1>
                 <p className="mt-4 text-neutral-300 max-w-lg">
-                  We help businesses automate workflows, build intelligent chatbots, and integrate AI agents that work
-                  24/7 to boost productivity and drive growth.
+                  Discover innovative AI solutions crafted by Tehan to transform your business. From intelligent
+                  automation to custom AI development, we deliver products that drive measurable results.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-8">

@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
+    "@expo/dom-webview": "latest",
+    "@expo/metro-runtime": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@number-flow/react": "0.5.10",
     "@radix-ui/react-accordion": "1.2.2",
@@ -70,6 +72,9 @@
     "react-dom": "^19",
     "react-hook-form": "^7.60.0",
     "react-native": "latest",
+    "react-native-reanimated": "latest",
+    "react-native-web": "latest",
+    "react-native-webview": "latest",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.4",
     "sonner": "^1.7.4",
