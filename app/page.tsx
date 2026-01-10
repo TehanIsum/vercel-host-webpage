@@ -7,6 +7,9 @@ import { SparklesCore } from "@/components/ui/sparkles"
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid"
 import { Navbar } from "@/components/ui/navbar"
 import { Pricing } from "@/components/ui/pricing"
+import { BlogCard } from "@/components/blog-card"
+import { BlogSectionEmptyState } from "@/components/blog-section-empty-state"
+import { createClient } from "@/lib/supabase/server"
 import {
   CheckCircle,
   ArrowRight,
@@ -27,7 +30,19 @@ import {
   Facebook,
 } from "lucide-react"
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch recent blogs
+  const supabase = await createClient()
+  
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  const { data: recentBlogs } = await supabase
+    .from("blogs_with_details")
+    .select("*")
+    .eq("published", true)
+    .order("created_at", { ascending: false })
+    .limit(3)
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation Component */}
@@ -37,13 +52,13 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
         <div className="container mx-auto px-4">
           <Card className="w-full h-[500px] bg-black/[0.96] relative overflow-hidden border-none">
-            <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
+            <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
 
             <div className="flex h-full">
               {/* Left content */}
               <div className="flex-1 p-8 relative z-10 flex flex-col justify-center">
                 <h1 className="text-4xl md:text-5xl font-bold text-white bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text">
-                  AI Products with Teha
+                  AI Products with Tehan
                 </h1>
                 <p className="mt-4 text-neutral-300 max-w-lg">
                   Discover innovative AI solutions crafted by Tehan to transform your business. From intelligent
@@ -52,26 +67,29 @@ export default function HomePage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
                   <Button size="lg" className="bg-white text-black hover:bg-gray-100">
-                    Book Free Consultation
+                    Contact me for more details
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                   <Button
                     size="lg"
                     variant="outline"
                     className="border-neutral-600 text-neutral-300 hover:bg-neutral-800 bg-transparent"
+                    asChild
                   >
-                    View Case Studies
+                    <a href="https://tehanonline.dev/projects" target="_blank" rel="noopener noreferrer">
+                      View My Projects
+                    </a>
                   </Button>
                 </div>
 
                 <div className="flex items-center gap-8 text-sm text-neutral-400 mt-6">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span>No Setup Fees</span>
+                    <span>100% Guaranteed</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span>30-Day ROI Guarantee</span>
+                    <span>Free Trial Included</span>
                   </div>
                 </div>
               </div>
@@ -143,7 +161,7 @@ export default function HomePage() {
       <section id="services" className="py-24 bg-black">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Our AI Solutions</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">My AI Solutions</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Comprehensive AI services designed to transform your business operations
             </p>
@@ -255,6 +273,56 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Recent Blog Posts Section */}
+      <section className="py-24 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              {user ? `Welcome back, ${user.email?.split('@')[0]}!` : 'Latest AI Insights'}
+            </h2>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              {user 
+                ? 'Check out the latest insights from our community' 
+                : 'Explore our latest thoughts on AI as a Service and how it\'s transforming businesses'}
+            </p>
+          </div>
+
+          {recentBlogs && recentBlogs.length > 0 ? (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                {recentBlogs.map((blog: any) => (
+                  <BlogCard
+                    key={blog.id}
+                    id={blog.id}
+                    title={blog.title}
+                    excerpt={blog.excerpt || blog.content.substring(0, 150) + "..."}
+                    author_email={blog.author_email}
+                    created_at={blog.created_at}
+                    likes_count={blog.likes_count || 0}
+                    comments_count={blog.comments_count || 0}
+                    slug={blog.slug}
+                  />
+                ))}
+              </div>
+              <div className="text-center">
+                <Button
+                  size="lg"
+                  className="bg-white text-black hover:bg-gray-100"
+                  asChild
+                >
+                  <a href="/blogs">
+                    View All Blogs
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+            </>
+          ) : (
+            <BlogSectionEmptyState />
+          )}
         </div>
       </section>
 

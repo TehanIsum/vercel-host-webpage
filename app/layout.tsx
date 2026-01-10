@@ -10,23 +10,9 @@ const spaceMono = Space_Mono({ subsets: ["latin"], weight: "400", variable: "--f
 export const metadata: Metadata = {
   title: "AI Products with Tehan",
   description: "Discover innovative AI solutions crafted by Tehan to transform your business",
-  generator: "v0.app",
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
+    icon: "/technology.png",
+    apple: "/technology.png",
   },
 }
 

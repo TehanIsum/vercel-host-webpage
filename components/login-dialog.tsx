@@ -39,7 +39,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
       }
 
       onOpenChange(false)
-      router.push("/protected")
+      router.refresh()
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
     } finally {

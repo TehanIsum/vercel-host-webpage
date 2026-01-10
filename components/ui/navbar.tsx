@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { LoginDialog } from "@/components/login-dialog"
 import { SignUpDialog } from "@/components/signup-dialog"
 
@@ -21,11 +22,22 @@ const AnimatedNavLink = ({ href, children }: { href: string; children: React.Rea
 }
 
 export function Navbar() {
+  const searchParams = useSearchParams()
   const [isOpen, setIsOpen] = useState(false)
   const [headerShapeClass, setHeaderShapeClass] = useState("rounded-full")
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [signupDialogOpen, setSignupDialogOpen] = useState(false)
   const shapeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Check URL parameters for login/signup triggers
+  useEffect(() => {
+    if (searchParams.get("login") === "true") {
+      setLoginDialogOpen(true)
+    }
+    if (searchParams.get("signup") === "true") {
+      setSignupDialogOpen(true)
+    }
+  }, [searchParams])
 
   const toggleMenu = () => {
     setIsOpen(!isOpen)
@@ -52,19 +64,21 @@ export function Navbar() {
   }, [isOpen])
 
   const logoElement = (
-    <div className="relative w-6 h-6 flex items-center justify-center">
+    <a href="/" className="relative w-6 h-6 flex items-center justify-center">
       <div className="absolute inset-0 border border-gray-300 rounded-sm opacity-60"></div>
       <div className="absolute w-2 h-2 bg-blue-400 rounded-full top-1 left-1"></div>
       <div className="absolute w-1 h-1 bg-gray-300 rounded-full top-1 right-1"></div>
       <div className="absolute w-1 h-1 bg-gray-300 rounded-full bottom-1 left-1"></div>
       <div className="absolute w-2 h-0.5 bg-gray-300 bottom-1.5 right-1"></div>
       <span className="absolute text-xs font-bold text-white">AI</span>
-    </div>
+    </a>
   )
 
   const navLinksData = [
-    { label: "Services", href: "#services" },
-    { label: "Case Studies", href: "#testimonials" },
+    { label: "Home", href: "/" },
+    { label: "Services", href: "/#services" },
+    { label: "Case Studies", href: "/#testimonials" },
+    { label: "Blogs", href: "/blogs" },
   ]
 
   const loginButtonElement = (
