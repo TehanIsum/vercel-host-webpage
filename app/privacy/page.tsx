@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { Navbar } from "@/components/ui/navbar"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
@@ -6,7 +7,9 @@ import Link from "next/link"
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-black">
-      <Navbar />
+      <Suspense fallback={<div className="h-20" />}>
+        <Navbar />
+      </Suspense>
 
       <div className="container mx-auto px-4 py-24">
         <div className="max-w-4xl mx-auto">
