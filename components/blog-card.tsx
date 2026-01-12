@@ -70,7 +70,7 @@ export function BlogCard({
               </div>
             </div>
             <Link href={`/blogs/${slug}`}>
-              <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+              <Button variant="outline" size="sm" className="border-white/20 bg-white text-black hover:bg-gray-100">
                 Read More
               </Button>
             </Link>

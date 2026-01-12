@@ -19,11 +19,13 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setSuccessMessage("")
     setLoading(true)
 
     try {
@@ -38,8 +40,11 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         return
       }
 
-      onOpenChange(false)
-      router.refresh()
+      setSuccessMessage("Successfully logged in! Redirecting...")
+      setTimeout(() => {
+        onOpenChange(false)
+        router.refresh()
+      }, 1500)
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
     } finally {
@@ -86,6 +91,11 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
+          {successMessage && (
+            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <p className="text-green-400 text-sm">{successMessage}</p>
+            </div>
+          )}
           <Button
             type="submit"
             disabled={loading}

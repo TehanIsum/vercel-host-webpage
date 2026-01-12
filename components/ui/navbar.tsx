@@ -2,27 +2,31 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, usePathname } from "next/navigation"
 import { LoginDialog } from "@/components/login-dialog"
 import { SignUpDialog } from "@/components/signup-dialog"
 
-const AnimatedNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
-  const defaultTextColor = "text-gray-300"
+const AnimatedNavLink = ({ href, children, isActive }: { href: string; children: React.ReactNode; isActive: boolean }) => {
+  const defaultTextColor = isActive ? "text-white" : "text-gray-300"
   const hoverTextColor = "text-white"
   const textSizeClass = "text-sm"
 
   return (
     <a href={href} className={`group relative inline-block overflow-hidden h-5 flex items-center ${textSizeClass}`}>
       <div className="flex flex-col transition-transform duration-400 ease-out transform group-hover:-translate-y-1/2">
-        <span className={defaultTextColor}>{children}</span>
+        <span className={`${defaultTextColor} ${isActive ? 'font-bold' : ''}`}>{children}</span>
         <span className={hoverTextColor}>{children}</span>
       </div>
+      {isActive && (
+        <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg shadow-blue-400/50"></span>
+      )}
     </a>
   )
 }
 
 export function Navbar() {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [headerShapeClass, setHeaderShapeClass] = useState("rounded-full")
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
@@ -81,6 +85,16 @@ export function Navbar() {
     { label: "Blogs", href: "/blogs" },
   ]
 
+  const isLinkActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/"
+    }
+    if (href.startsWith("/#")) {
+      return pathname === "/" && (typeof window !== "undefined" && window.location.hash === href.substring(1))
+    }
+    return pathname?.startsWith(href)
+  }
+
   const loginButtonElement = (
     <button
       onClick={() => setLoginDialogOpen(true)}
@@ -125,7 +139,7 @@ export function Navbar() {
 
           <nav className="hidden sm:flex items-center space-x-4 sm:space-x-6 text-sm">
             {navLinksData.map((link) => (
-              <AnimatedNavLink key={link.href} href={link.href}>
+              <AnimatedNavLink key={link.href} href={link.href} isActive={isLinkActive(link.href)}>
                 {link.label}
               </AnimatedNavLink>
             ))}
@@ -175,15 +189,23 @@ export function Navbar() {
                          ${isOpen ? "max-h-[1000px] opacity-100 pt-4" : "max-h-0 opacity-0 pt-0 pointer-events-none"}`}
         >
           <nav className="flex flex-col items-center space-y-4 text-base w-full">
-            {navLinksData.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-gray-300 hover:text-white transition-colors w-full text-center"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinksData.map((link) => {
+              const isActive = isLinkActive(link.href)
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-colors w-full text-center relative ${
+                    isActive ? "text-white font-bold" : "text-gray-300 hover:text-white"
+                  }`}
+                >
+                  {link.label}
+                  {isActive && (
+                    <span className="absolute inset-0 bg-blue-400/10 rounded-md -z-10 border border-blue-400/30"></span>
+                  )}
+                </a>
+              )
+            })}
           </nav>
           <div className="flex flex-col items-center space-y-4 mt-4 w-full">
             {loginButtonElement}

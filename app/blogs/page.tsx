@@ -1,6 +1,9 @@
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
+import { Navbar } from "@/components/ui/navbar"
 import { Button } from "@/components/ui/button"
 import { BlogCard } from "@/components/blog-card"
+import { BlogsClient } from "./blogs-client"
 import { ArrowRight, Lock } from "lucide-react"
 import Link from "next/link"
 
@@ -9,6 +12,20 @@ export default async function BlogsPage() {
 
   const { data } = await supabase.auth.getUser()
   const isAuthenticated = !!data?.user
+
+  // Get username from profile
+  let username = "User"
+  if (isAuthenticated && data?.user?.id) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", data.user.id)
+      .single()
+    
+    if (profile?.username) {
+      username = profile.username
+    }
+  }
 
   // Fetch blogs - limited to 3 for unauthenticated users
   const query = supabase
@@ -25,7 +42,13 @@ export default async function BlogsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a]">
+      <Suspense fallback={<div className="h-20" />}>
+        <Navbar />
+      </Suspense>
+
       <div className="container mx-auto px-4 py-24">
+        {isAuthenticated && <BlogsClient username={username} />}
+
         {!isAuthenticated && (
           <div className="mb-8 p-6 bg-blue-500/10 border border-blue-500/20 rounded-lg">
             <div className="flex items-start gap-4">
@@ -44,7 +67,7 @@ export default async function BlogsPage() {
                     </Button>
                   </Link>
                   <Link href="/?login=true">
-                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                    <Button variant="outline" className="border-white/20 bg-white text-black hover:bg-gray-100">
                       Log In
                     </Button>
                   </Link>
