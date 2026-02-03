@@ -1,5 +1,5 @@
 
-#Prompt to CombinedMax
+#Prompt to CombinedMax Update
 # Single Active Session System - Implementation Prompt
 
 Use this prompt with AI assistants (Claude, ChatGPT, etc.) to implement a single active session system in your new project.
