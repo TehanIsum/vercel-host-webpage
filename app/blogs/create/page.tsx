@@ -74,7 +74,7 @@ export default function CreateBlogPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a]">
       <div className="container mx-auto px-4 py-24 max-w-3xl">
         <Link href="/blogs">
-          <Button variant="outline" className="mb-6 border-white/20 text-white hover:bg-white/10">
+          <Button variant="outline" className="mb-6 border-white/20 text-black hover:bg-white/10">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Blogs
           </Button>

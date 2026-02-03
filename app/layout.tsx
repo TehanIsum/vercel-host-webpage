@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Space_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { SessionProvider } from "@/components/session-provider"
+import { Suspense } from "react"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -24,7 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceMono.variable}`}>
       <body className="font-sans antialiased">
-        {children}
+        <Suspense fallback={null}>
+          <SessionProvider>
+            {children}
+          </SessionProvider>
+        </Suspense>
         <Analytics />
       </body>
     </html>

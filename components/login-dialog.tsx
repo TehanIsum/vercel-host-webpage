@@ -29,24 +29,35 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     setLoading(true)
 
     try {
-      const supabase = createClient()
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Use the single-session login endpoint
+      const response = await fetch('/api/auth/single-session-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       })
 
-      if (authError) {
-        setError(authError.message || "Login failed. Please try again.")
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Login failed. Please try again.")
         return
       }
 
       setSuccessMessage("Successfully logged in! Redirecting...")
+      
+      // Clear form
+      setEmail("")
+      setPassword("")
+      
       setTimeout(() => {
         onOpenChange(false)
         router.refresh()
       }, 1500)
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
+      console.error('Login error:', err)
     } finally {
       setLoading(false)
     }

@@ -2,9 +2,10 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { useSearchParams, usePathname } from "next/navigation"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { LoginDialog } from "@/components/login-dialog"
 import { SignUpDialog } from "@/components/signup-dialog"
+import { createClient } from "@/lib/supabase/client"
 
 const AnimatedNavLink = ({ href, children, isActive }: { href: string; children: React.ReactNode; isActive: boolean }) => {
   const defaultTextColor = isActive ? "text-white" : "text-gray-300"
@@ -27,11 +28,24 @@ const AnimatedNavLink = ({ href, children, isActive }: { href: string; children:
 export function Navbar() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [headerShapeClass, setHeaderShapeClass] = useState("rounded-full")
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [signupDialogOpen, setSignupDialogOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const shapeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Check user authentication status
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    checkUser()
+  }, [loginDialogOpen, signupDialogOpen])
 
   // Check URL parameters for login/signup triggers
   useEffect(() => {
@@ -42,6 +56,23 @@ export function Navbar() {
       setSignupDialogOpen(true)
     }
   }, [searchParams])
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      setUser(null)
+      router.push('/')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   const toggleMenu = () => {
     setIsOpen(!isOpen)
@@ -95,7 +126,15 @@ export function Navbar() {
     return pathname?.startsWith(href)
   }
 
-  const loginButtonElement = (
+  const loginButtonElement = user ? (
+    <button
+      onClick={handleLogout}
+      disabled={isLoggingOut}
+      className="px-4 py-2 sm:px-3 text-xs sm:text-sm border border-[#333] bg-[rgba(31,31,31,0.62)] text-gray-300 rounded-full hover:border-red-500/50 hover:text-red-400 transition-colors duration-200 w-full sm:w-auto disabled:opacity-50"
+    >
+      {isLoggingOut ? 'Logging out...' : 'Log Out'}
+    </button>
+  ) : (
     <button
       onClick={() => setLoginDialogOpen(true)}
       className="px-4 py-2 sm:px-3 text-xs sm:text-sm border border-[#333] bg-[rgba(31,31,31,0.62)] text-gray-300 rounded-full hover:border-white/50 hover:text-white transition-colors duration-200 w-full sm:w-auto"
@@ -104,7 +143,7 @@ export function Navbar() {
     </button>
   )
 
-  const signupButtonElement = (
+  const signupButtonElement = user ? null : (
     <div className="relative group w-full sm:w-auto">
       <div
         className="absolute inset-0 -m-2 rounded-full
